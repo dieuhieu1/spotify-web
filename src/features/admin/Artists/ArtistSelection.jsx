@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { useArtistsStore } from "@/store/useArtistsStore";
+import { useArtists } from "@/hooks/useArtistsQuery";
 
 const ArtistSelection = ({ song, setSong }) => {
-  const { artists } = useArtistsStore();
+  const { data: artists = [] } = useArtists();
   const [selectedArtistsId, setSelectedArtistsId] = useState(
     song?.artistIds || []
   );

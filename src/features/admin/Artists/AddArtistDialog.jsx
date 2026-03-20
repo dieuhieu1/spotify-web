@@ -10,16 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-import { useMusicStore } from "@/store/useMusicStore";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useArtistsStore } from "@/store/useArtistsStore";
+import { useAddArtist } from "@/hooks/useArtistsQuery";
 import UploadImage from "../file-upload/UploadImage";
 
 const AddArtistsDialog = () => {
-  const { addArtist } = useArtistsStore();
-  const { isLoading } = useMusicStore();
+  const addArtistMutation = useAddArtist();
+  const isLoading = addArtistMutation.isPending;
   const [artistDialogOpen, setArtistDialogOpen] = useState(false);
 
   const [newArtist, setNewArtist] = useState({
@@ -45,7 +44,7 @@ const AddArtistsDialog = () => {
     }
     newArtist.imageURL = image.url;
 
-    addArtist(newArtist);
+    addArtistMutation.mutate(newArtist);
     clearData();
     setArtistDialogOpen(false);
   };

@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useAlbumById } from "@/hooks/useAlbumsQuery";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { formatDuration } from "@/utils/formatDuration";
 import { Clock, Pause, Play } from "lucide-react";
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 function Album() {
   const { albumId } = useParams();
-  const { fetchSongById, currentAlbum } = useMusicStore();
+  const { data: currentAlbum } = useAlbumById(albumId);
   const { currentSong, isPlaying, playAlbum } = usePlayerStore();
   const handlePlayAlbum = () => {
     if (!currentAlbum) return;
@@ -26,9 +25,6 @@ function Album() {
     if (!currentAlbum) return;
     playAlbum(currentAlbum?.songs, index);
   };
-  useEffect(() => {
-    if (albumId) fetchSongById(albumId);
-  }, [fetchSongById, albumId]);
   // if (isLoading) return null;
   return (
     <div className="h-full">

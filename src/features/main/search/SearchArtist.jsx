@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import PlayButtonArtist from "../playController/PlayBtnArtists";
-import { useSearchStore } from "@/store/useSearchStore";
+import { useSearchArtists } from "@/hooks/useSearchQuery";
 
-const SearchArtist = () => {
-  const { artists = [] } = useSearchStore();
+const SearchArtist = ({ query }) => {
+  const { data: artists = [] } = useSearchArtists(query);
   const navigate = useNavigate();
+
   return (
     <div className=" bg-primary text-white font-sans">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(6,_235px)] gap-5">
@@ -21,8 +22,7 @@ const SearchArtist = () => {
                   "https://discussions.apple.com/content/attachment/592590040"
                 }
                 alt={artist?.name}
-                className="w-full h-full object-cover transition-transform duration-300 
-                group-hover:scale-105 "
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 "
               />
             </div>
             <div className="mt-2">

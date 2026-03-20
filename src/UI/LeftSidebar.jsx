@@ -1,24 +1,20 @@
 import stack_icon from "../assets/client-assets/stack.png";
-import searc_icon from "../assets/client-assets/search.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PlaylistSkeleton from "@/loadingSkeleton/PlaylistSkeleton";
-import { useMusicStore } from "@/store/useMusicStore";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import { useAuthStore } from "@/store/useAuthStore";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
+import { useMyInfo } from "@/hooks/useMyInfoQuery";
 
 function LeftSidebar() {
-  const { isLoading } = useMusicStore();
-  const { newPlaylist } = usePlaylistStore();
-  const { userPlaylists, checkAdminStatus } = useAuthStore();
+  const { userPlaylists } = useAuthStore();
   const navigate = useNavigate();
   const { isLogin, setIsDialogOpen } = useAuth();
-  const [combinedPlaylists, setCombinedPlaylists] = useState([]);
-  // Hàm xử lý tạo playlist
+  const { isLoading } = useMyInfo();
+
   const handleCreate = () => {
     if (isLogin) {
       navigate("playlist");
@@ -26,17 +22,6 @@ function LeftSidebar() {
       setIsDialogOpen(true);
     }
   };
-
-  // Fetch playlists
-  useEffect(() => {
-    checkAdminStatus();
-  }, [checkAdminStatus, newPlaylist]);
-
-  useEffect(() => {
-    if (userPlaylists) {
-      setCombinedPlaylists(userPlaylists);
-    }
-  }, [userPlaylists]);
 
   return (
     <div className="h-[100%] flex flex-col gap-2 rounded-md bg-primary p-4 font-medium text-stone-300">
@@ -70,8 +55,8 @@ function LeftSidebar() {
         <ScrollArea className="h-[calc(100vh-300px)]">
           {isLoading ? (
             <PlaylistSkeleton />
-          ) : combinedPlaylists.length > 0 ? (
-            combinedPlaylists.map((playlist) => (
+          ) : userPlaylists.length > 0 ? (
+            userPlaylists.map((playlist) => (
               <Link
                 to={`/playlist/${playlist?.id}`}
                 key={playlist?.id}
@@ -97,17 +82,12 @@ function LeftSidebar() {
             ))
           ) : (
             <div className="bg-[#1F1F1F] text-white p-6 rounded-lg w-80 shadow-lg mt-10">
-              {/* Tiêu đề */}
               <h2 className="font-bold text-lg mb-2">
                 Tạo danh sách phát đầu tiên của bạn
               </h2>
-
-              {/* Văn bản phụ */}
               <p className="text-sm text-gray-400 mb-4">
                 Rất dễ! Chỉ cần vài bước đơn giản
               </p>
-
-              {/* Nút */}
               <button
                 onClick={handleCreate}
                 className="bg-white text-black font-bold py-2 px-4 rounded-full hover:bg-gray-200 transition duration-200"

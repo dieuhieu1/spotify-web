@@ -17,14 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import useUserStore from "@/store/useUserStore";
+import { useAddUser } from "@/hooks/useUsersQuery";
+import { usePlaylists } from "@/hooks/usePlaylistsQuery";
 
 const AddUserDialog = () => {
-  const { users, addUser } = useUserStore();
-  const { playlists, isLoading } = useMusicStore();
+  const addUserMutation = useAddUser();
+  const { data: playlists = [] } = usePlaylists(1, 100);
+  const isLoading = addUserMutation.isPending;
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const roles = [
     {
@@ -77,7 +78,7 @@ const AddUserDialog = () => {
     for (let [key, value] of formData.entries()) {
       console.log(key, value); // In key và value của mỗi phần tử trong FormData
     }
-    addUser(formData);
+    addUserMutation.mutate(formData);
     clearData();
     setUserDialogOpen(false);
   };

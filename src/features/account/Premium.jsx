@@ -5,7 +5,7 @@ import User from "../auth/User/User";
 import BackButton from "@/UI/BackButton";
 import { paymentAPI } from "@/services/apiPayment";
 import { useAuth } from "@/providers/AuthProvider";
-import LogIn from "../auth/User/SignedIn";
+import { LogIn } from "lucide-react";
 
 const Premium = () => {
   const navigate = useNavigate();

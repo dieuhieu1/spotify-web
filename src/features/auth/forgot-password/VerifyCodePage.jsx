@@ -1,21 +1,21 @@
 import { useState } from "react";
 import VerificationInput from "./VerificationInput";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useVerifyCode } from "@/hooks/useAuthMutations";
 import { MoveLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const VerifyCodePage = () => {
   const navigate = useNavigate();
 
-  const { email, verifyCode, error } = useAuthStore();
+  const { email } = useAuthStore();
+  const verifyCodeMutation = useVerifyCode();
 
   const [verificationCode, setVerificationCode] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Send the Code to the Server for authorization
-    const result = verifyCode({ email, verificationCode });
-    console.log(error);
+    verifyCodeMutation.mutate({ email, verificationCode });
   };
 
   return (
@@ -42,8 +42,8 @@ const VerifyCodePage = () => {
               setVerificationCode={setVerificationCode}
             />
           </div>
-          {error && (
-            <p className="text-red-500 text-sm">{error?.message}</p> // Hiển thị thông báo lỗi
+          {verifyCodeMutation.isError && (
+            <p className="text-red-500 text-sm">{verifyCodeMutation.error?.message}</p>
           )}
 
           {/* Submit button */}

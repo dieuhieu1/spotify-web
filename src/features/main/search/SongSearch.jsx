@@ -1,25 +1,20 @@
 import { useState, useEffect } from "react";
 import { formatTime } from "@/features/player/PlaybackControls";
 import { Check } from "lucide-react";
+import { useSearchSongs } from "@/hooks/useSearchQuery";
 
-const SongSearch = ({ songs, query, setQuery, handleAdd, addedSongs }) => {
-  const [filteredSongs, setFilteredSongs] = useState(songs);
+const SongSearch = ({ query, setQuery, handleAdd, addedSongs }) => {
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  // Hàm lọc bài hát khi người dùng thay đổi query
   useEffect(() => {
-    if (query.trim()) {
-      const filtered = songs?.filter((song) =>
-        song?.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSongs(filtered);
-    } else {
-      setFilteredSongs("");
-    }
-  }, [query, songs]);
+    const timer = setTimeout(() => setDebouncedQuery(query), 500);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const { data: songs = [] } = useSearchSongs(debouncedQuery);
 
   return (
     <div className="mt-2">
-      {/* Ô tìm kiếm */}
       <div className="flex flex-col items-center gap-4 mb-3">
         <input
           onChange={(e) => setQuery(e.target.value)}
@@ -28,17 +23,16 @@ const SongSearch = ({ songs, query, setQuery, handleAdd, addedSongs }) => {
           className="bg-zinc-800 w-full p-3 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-zinc-600"
         />
 
-        {/* Hiển thị danh sách bài hát */}
         <ul className="w-full">
-          {filteredSongs?.length > 0 &&
-            filteredSongs.map((song) => (
+          {songs?.length > 0 &&
+            songs.map((song) => (
               <li
                 key={song?.id}
                 className="flex justify-between items-center py-2 px-4 hover:bg-zinc-800 rounded-md cursor-pointer"
               >
                 <div className="flex items-center gap-4 w-full">
                   <img
-                    src={song?.imageURL} // Thay bằng URL ảnh thật
+                    src={song?.imageURL}
                     alt={song?.name}
                     className="w-10 h-10 object-cover rounded-md"
                   />
@@ -55,9 +49,8 @@ const SongSearch = ({ songs, query, setQuery, handleAdd, addedSongs }) => {
                     {formatTime(song?.duration)}
                   </div>
                 </div>
-                {/* Conditional render for button */}
                 <button
-                  onClick={() => handleAdd(song?.id)} // Thêm bài hát vào playlist
+                  onClick={() => handleAdd(song?.id)}
                   className="flex gap-4 items-center border border-white px-4 py-2 rounded-full hover:scale-105 opacity-90 transition-all hover:opacity-100"
                 >
                   {addedSongs?.includes(song.id) ? (

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useUploadImage, useDeleteFile } from "@/hooks/useUploadMutation";
 import { X } from "lucide-react";
 import { useState, useRef } from "react";
 import toast from "react-hot-toast";
@@ -17,7 +17,9 @@ const EditPlaylistModal = ({
   const [playlistDescription, setPlaylistDescription] = useState("");
   const [localTitle, setLocalTitle] = useState(playlist?.title); // State cục bộ cho tiêu đề
 
-  const { uploadFileImage, deleteFile, isUploading } = useUploadStore();
+  const uploadMutation = useUploadImage();
+  const deleteMutation = useDeleteFile();
+  const isUploading = uploadMutation.isPending || deleteMutation.isPending;
   const fileInputRef = useRef(null); // Tạo ref cho input file
   const modalRef = useRef();
   const handleOutsideClick = (e) => {
@@ -35,7 +37,7 @@ const EditPlaylistModal = ({
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     // Upload File to Cloudinary
-    const result = await uploadFileImage(file);
+    const result = await uploadMutation.mutateAsync(file);
     if (result) {
       toast.success("Image uploaded successfully");
       setFile(result);
@@ -47,14 +49,9 @@ const EditPlaylistModal = ({
     if (!file) {
       return toast.error("No file existed for delete");
     }
-    const result = await deleteFile(file.id);
-
-    if (result) {
-      toast.success("Song deleted successfully");
-      setFile(null);
-    } else {
-      toast.error("Failed to deleted song");
-    }
+    await deleteMutation.mutateAsync(file.id);
+    toast.success("Image deleted successfully");
+    setFile(null);
   };
   const handleSave = () => {
     setPlaylist({

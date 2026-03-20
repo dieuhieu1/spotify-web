@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useUploadImage, useDeleteFile } from "@/hooks/useUploadMutation";
 
 import { Upload, X } from "lucide-react";
 import { useRef } from "react";
@@ -16,13 +16,14 @@ const SkeletonLoader = () => {
 };
 
 const UploadImage = ({ image, setImage, nameField }) => {
-  const { uploadFileImage, deleteFile, isUploading } = useUploadStore();
+  const uploadMutation = useUploadImage();
+  const deleteMutation = useDeleteFile();
+  const isUploading = uploadMutation.isPending || deleteMutation.isPending;
   const imageInputRef = useRef(null);
 
   const handleUploadImage = async (fileUpload) => {
-    const result = await uploadFileImage(fileUpload);
+    const result = await uploadMutation.mutateAsync(fileUpload);
     setImage(result);
-    console.log(result);
     if (result) {
       toast.success("Image uploaded successfully");
     } else {
@@ -35,14 +36,9 @@ const UploadImage = ({ image, setImage, nameField }) => {
       return toast.error("No file existed for delete");
     }
 
-    const result = await deleteFile(image.id);
-
+    await deleteMutation.mutateAsync(image.id);
     setImage(null);
-    if (result) {
-      toast.success("Song deleted successfully");
-    } else {
-      toast.error("Failed to deleted song");
-    }
+    toast.success("Image deleted successfully");
   };
   if (isUploading) return <SkeletonLoader />;
   return (

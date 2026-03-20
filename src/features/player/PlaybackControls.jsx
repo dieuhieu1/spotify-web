@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useArtistsStore } from "@/store/useArtistsStore";
-import { useMusicStore } from "@/store/useMusicStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import {
   Laptop2,
@@ -26,17 +24,15 @@ export const formatTime = (seconds) => {
 const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
     usePlayerStore();
-  const { current } = useMusicStore();
-  const { currentArtist } = useArtistsStore();
 
   const [volume, setVolume] = useState(60);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const audioRef = useRef(null);
+
   useEffect(() => {
     audioRef.current = document.querySelector("audio");
-
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -50,6 +46,7 @@ const PlaybackControls = () => {
       usePlayerStore.setState({ isPlaying: false });
     };
     audio.addEventListener("ended", handleEnded);
+
     return () => {
       audio.removeEventListener("timeupdate", updateTime);
       audio.removeEventListener("loadedmetadata", updateDuration);
@@ -62,6 +59,7 @@ const PlaybackControls = () => {
       audioRef.current.currentTime = value[0];
     }
   };
+
   return (
     <footer className="h-20 sm:h-24  px-4">
       <div className="flex justify-between items-center h-full max-w-[1800px] mx-auto">
@@ -79,14 +77,14 @@ const PlaybackControls = () => {
                   {currentSong.name}
                 </div>
                 <div className="text-sm text-zinc-400 truncate hover:underline cursor-pointer">
-                  {currentSong.artist || current?.name || currentArtist?.name}
+                  {currentSong?.artists?.[0]?.name || currentSong.artist}
                 </div>
               </div>
             </>
           )}
         </div>
 
-        {/* player controls*/}
+        {/* player controls */}
         <div className="flex flex-col items-center gap-2 flex-1 max-w-full sm:max-w-[45%]">
           <div className="flex items-center gap-4 sm:gap-6">
             <Button
@@ -96,7 +94,6 @@ const PlaybackControls = () => {
             >
               <Shuffle className="h-4 w-4" />
             </Button>
-
             <Button
               size="icon"
               variant="ghost"
@@ -106,7 +103,6 @@ const PlaybackControls = () => {
             >
               <SkipBack className="h-4 w-4" />
             </Button>
-
             <Button
               size="icon"
               className="bg-white hover:bg-white/80 text-black rounded-full h-8 w-8"
@@ -151,6 +147,7 @@ const PlaybackControls = () => {
             <div className="text-xs text-zinc-400">{formatTime(duration)}</div>
           </div>
         </div>
+
         {/* volume controls */}
         <div className="hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end">
           <Button
@@ -183,7 +180,6 @@ const PlaybackControls = () => {
             >
               <Volume1 className="h-4 w-4" />
             </Button>
-
             <Slider
               value={[volume]}
               max={100}

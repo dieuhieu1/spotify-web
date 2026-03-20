@@ -7,17 +7,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UserRoundCheck } from "lucide-react";
-import { useEffect } from "react";
 import TableSkel from "../../../loadingSkeleton/TableSkel";
-import { useArtistsStore } from "@/store/useArtistsStore";
 import DeleteDialog from "@/UI/DeleteDialog";
 import UpdateArtist from "./UpdateArtist";
+import { useArtists, useDeleteArtist } from "@/hooks/useArtistsQuery";
 
 const ArtistsTable = () => {
-  const { artists, deleteArtist, fetchArtists, isLoading } = useArtistsStore();
-  useEffect(() => {
-    fetchArtists(1, 10, "name", "asc");
-  }, [fetchArtists]);
+  const { data: artists = [], isLoading } = useArtists(1, 100, "name", "asc");
+  const deleteArtistMutation = useDeleteArtist();
 
   if (isLoading) {
     return <TableSkel />;
@@ -36,10 +33,11 @@ const ArtistsTable = () => {
       </TableHeader>
       <TableBody>
         {artists?.map((artist) => {
-          const artistName = artist?.name || "Unknown Artist"; // Default to "Unknown Title"
-          const follower = artist?.follower || "Unknown Date"; // Default to "Unknown Date"
-          const imageURL = artist?.imageURL || ""; // Fallback to an empty string if imageURL is not provided
+          const artistName = artist?.name || "Unknown Artist";
+          const follower = artist?.follower || "Unknown Date";
+          const imageURL = artist?.imageURL || "";
           const songs = artist?.songs || [];
+
           return (
             <TableRow key={artist.id} className=" hover:bg-zinc-800/50 ">
               <TableCell>
@@ -50,7 +48,7 @@ const ArtistsTable = () => {
                     className="size-10 rounded object-cover"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-zinc-800 rounded" /> // Placeholder if no image
+                  <div className="w-10 h-10 bg-zinc-800 rounded" />
                 )}
               </TableCell>
               <TableCell>{artistName}</TableCell>
@@ -70,7 +68,6 @@ const ArtistsTable = () => {
                   <span className="text-gray-400">No songs</span>
                 )}
               </TableCell>
-
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <UserRoundCheck className="h-4 w-4" />
@@ -80,9 +77,9 @@ const ArtistsTable = () => {
               <TableCell className="text-right">
                 <DeleteDialog
                   id={artist.id}
-                  deleteAPI={deleteArtist}
+                  deleteAPI={(id) => deleteArtistMutation.mutate(id)}
                   type={artist.name}
-                  isLoading={isLoading}
+                  isLoading={deleteArtistMutation.isPending}
                   title={"Delete Artist"}
                 />
                 <UpdateArtist artist={artist} />

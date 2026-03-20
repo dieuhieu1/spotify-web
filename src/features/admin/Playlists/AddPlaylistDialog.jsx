@@ -10,16 +10,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
+import { useAddPlaylist } from "@/hooks/usePlaylistsQuery";
+import { useSongs } from "@/hooks/useSongsQuery";
 import UploadImage from "../file-upload/UploadImage";
 
 const AddPlaylistDialog = () => {
-  const { addPlaylist, isLoading } = usePlaylistStore();
-  const { songs } = useMusicStore();
+  const addPlaylistMutation = useAddPlaylist();
+  const { data: songs = [] } = useSongs(1, 100);
+  const isLoading = addPlaylistMutation.isPending;
   const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
   const [image, setImage] = useState(false);
 
@@ -55,7 +56,7 @@ const AddPlaylistDialog = () => {
       return toast.error("Please upload image files");
     }
     newPlaylist.imageURL = image.url;
-    addPlaylist(newPlaylist);
+    addPlaylistMutation.mutate(newPlaylist);
     clearData();
     setPlaylistDialogOpen(false);
   };

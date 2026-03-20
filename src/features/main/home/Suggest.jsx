@@ -1,19 +1,16 @@
-import { useMusicStore } from "@/store/useMusicStore";
-
 import PlayBtn from "./PlayBtn";
 import LoginDialog from "@/UI/LoginDialog";
-
 import { useAuth } from "@/providers/AuthProvider";
-import { useArtistsStore } from "@/store/useArtistsStore";
+import { useArtists } from "@/hooks/useArtistsQuery";
+import { useTrendingSongs } from "@/hooks/useSongsQuery";
 
 const Suggest = () => {
-  const { artists } = useArtistsStore();
-  const { trendingSongs } = useMusicStore();
+  const { data: artists = [] } = useArtists(1, 100, "follower", "desc");
+  const { data: trendingSongs = [] } = useTrendingSongs();
   const { isDialogOpen, setIsDialogOpen } = useAuth();
 
   return (
     <div className="mb-16">
-      {/* Phần Nghệ sĩ phổ biến */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Bài hát phổ biến</h2>
@@ -36,19 +33,16 @@ const Suggest = () => {
                   className="w-full h-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105 "
                 />
               </div>
-
               <p className="text-md font-semibold mt-2">{song.name}</p>
               <p className="text-sm text-gray-400">
                 {song?.artists?.[0]?.name}
               </p>
-
               <PlayBtn />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Phần Album và đĩa đơn nổi tiếng */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Danh sách phát nổi tiếng</h2>
@@ -71,8 +65,7 @@ const Suggest = () => {
                     "https://discussions.apple.com/content/attachment/592590040"
                   }
                   alt={artist?.name}
-                  className="w-full h-full object-cover transition-transform duration-300 
-                group-hover:scale-105 "
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 "
                 />
               </div>
               <div className="mt-2">
@@ -84,6 +77,7 @@ const Suggest = () => {
           ))}
         </div>
       </section>
+
       <LoginDialog
         className="text-white"
         isDialogOpen={isDialogOpen}

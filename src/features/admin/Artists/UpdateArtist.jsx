@@ -8,15 +8,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import UploadImage from "../file-upload/UploadImage";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useUpdateArtist } from "@/hooks/useArtistsQuery";
+import { useAllFiles } from "@/hooks/useUploadMutation";
 
 const UpdateArtist = ({ artist }) => {
-  const { updateSong, isLoading } = useMusicStore();
-  const { files } = useUploadStore();
+  const updateArtistMutation = useUpdateArtist();
+  const { data: files } = useAllFiles();
+  const isLoading = updateArtistMutation.isPending;
 
   const [image, setImage] = useState(null);
   const [artistDialogOpen, setArtistDialogOpen] = useState(false);
@@ -47,7 +48,7 @@ const UpdateArtist = ({ artist }) => {
   const handleSubmit = async () => {
     updatedArtist.imageURL = image.imageURL;
 
-    updateSong(artist.id, updatedArtist);
+    updateArtistMutation.mutate({ id: artist.id, artistData: updatedArtist });
     clearData();
     setArtistDialogOpen(false);
   };

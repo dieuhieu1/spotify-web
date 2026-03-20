@@ -9,17 +9,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useArtistsStore } from "@/store/useArtistsStore";
-
-import { useMusicStore } from "@/store/useMusicStore";
+import { useArtists } from "@/hooks/useArtistsQuery";
+import { useSongs } from "@/hooks/useSongsQuery";
+import { useAddAlbum } from "@/hooks/useAlbumsQuery";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import CreatableSelect from "react-select/creatable";
 
 const AddAlbumDialog = () => {
-  const { artists } = useArtistsStore();
-  const { songs, addAlbum, isLoading } = useMusicStore();
+  const { data: artists = [] } = useArtists();
+  const { data: songs = [] } = useSongs(1, 100);
+  const addAlbumMutation = useAddAlbum();
+  const isLoading = addAlbumMutation.isPending;
   const [songDialogOpen, setSongDialogOpen] = useState(false);
   const [newAlbum, setNewAlbum] = useState({
     name: "",
@@ -73,7 +75,7 @@ const AddAlbumDialog = () => {
     for (let [key, value] of formData.entries()) {
       console.log(key, value); // In key và value của mỗi phần tử trong FormData
     }
-    addAlbum(formData);
+    addAlbumMutation.mutate(formData);
     clearData();
     setSongDialogOpen(false);
   };

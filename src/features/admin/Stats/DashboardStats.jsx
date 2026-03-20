@@ -6,10 +6,10 @@ import {
   SquareUserRound,
 } from "lucide-react";
 import StatsCard from "./StatsCard";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useStats } from "@/hooks/useStatsQuery";
 
 const DashboardStats = () => {
-  const { stats = {} } = useMusicStore();
+  const { data: stats = {} } = useStats();
 
   const statsData = [
     {
@@ -56,7 +56,7 @@ const DashboardStats = () => {
           key={stat.label}
           icon={stat.icon}
           label={stat.label}
-          value={stat.value.toString()} // Ép kiểu thành string
+          value={stat.value.toString()}
           bgColor={stat.bgColor}
           iconColor={stat.iconColor}
         />

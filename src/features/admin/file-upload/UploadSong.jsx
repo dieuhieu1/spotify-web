@@ -2,18 +2,20 @@
 import { useRef } from "react";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useUploadSong, useDeleteFile } from "@/hooks/useUploadMutation";
 import { Button } from "@/components/ui/button";
 
 const UploadSong = ({ audio, setAudio }) => {
-  const { isUploading, uploadFileSong, deleteFile } = useUploadStore();
+  const uploadMutation = useUploadSong();
+  const deleteMutation = useDeleteFile();
+  const isUploading = uploadMutation.isPending || deleteMutation.isPending;
   const audioInputRef = useRef(null);
 
   const handleUploadSong = async (fileUpload) => {
     if (!fileUpload) {
       return toast.error("Please upload audio files");
     }
-    const result = await uploadFileSong(fileUpload);
+    const result = await uploadMutation.mutateAsync(fileUpload);
     setAudio(result);
     if (result) {
       toast.success("Song uploaded successfully");
@@ -27,14 +29,9 @@ const UploadSong = ({ audio, setAudio }) => {
       return toast.error("No file existed for delete");
     }
 
-    const result = await deleteFile(audio.id);
-
+    await deleteMutation.mutateAsync(audio.id);
     setAudio(null);
-    if (result) {
-      toast.success("Song deleted successfully");
-    } else {
-      toast.error("Failed to delete song");
-    }
+    toast.success("Song deleted successfully");
   };
 
   if (isUploading) return;

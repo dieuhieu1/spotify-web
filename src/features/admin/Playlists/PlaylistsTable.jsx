@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,20 +6,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useMusicStore } from "@/store/useMusicStore";
-import { Trash2, UserRoundCheck } from "lucide-react";
-import { useEffect } from "react";
+import { UserRoundCheck } from "lucide-react";
 import TableSkel from "../../../loadingSkeleton/TableSkel";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
 import DeleteDialog from "@/UI/DeleteDialog";
 import UpdatePlaylist from "./UpdatePlaylist";
+import { usePlaylists, useDeletePlaylist } from "@/hooks/usePlaylistsQuery";
 
 const PlaylistTable = () => {
-  const { playlists, deletePlaylist, fetchPlaylists, isLoading } =
-    usePlaylistStore();
-  useEffect(() => {
-    fetchPlaylists(1, 10);
-  }, [fetchPlaylists]);
+  const { data: playlists = [], isLoading } = usePlaylists(1, 10);
+  const deletePlaylistMutation = useDeletePlaylist();
 
   if (isLoading) {
     return <TableSkel />;
@@ -95,9 +89,9 @@ const PlaylistTable = () => {
                 <div className="flex gap-2 justify-end">
                   <DeleteDialog
                     id={playlist.id}
-                    deleteAPI={deletePlaylist}
+                    deleteAPI={(id) => deletePlaylistMutation.mutate(id)}
                     title={"Delete Playlist"}
-                    isLoading={isLoading}
+                    isLoading={deletePlaylistMutation.isPending}
                     type={playlistName}
                   />
                   <UpdatePlaylist playlist={playlist} />

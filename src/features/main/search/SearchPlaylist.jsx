@@ -1,11 +1,11 @@
-import { useSearchStore } from "@/store/useSearchStore";
 import { useNavigate } from "react-router-dom";
 import PlayButtonPlaylist from "../playController/PlayButtonPlaylist";
+import { useSearchPlaylists } from "@/hooks/useSearchQuery";
 
-const SearchPlaylist = () => {
-  const { playlists = [] } = useSearchStore();
+const SearchPlaylist = ({ query }) => {
+  const { data: playlists = [] } = useSearchPlaylists(query);
   const navigate = useNavigate();
-  console.log(playlists);
+
   return (
     <div className=" bg-primary text-white font-sans">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(6,_235px)] gap-5">
@@ -23,14 +23,9 @@ const SearchPlaylist = () => {
                   className="aspect-square object-cover transition-transform duration-300 group-hover:scale-105 "
                 />
               </div>
-
               <p className="text-md font-semibold mt-2">{playlist.title}</p>
               <p className="text-sm text-gray-400">Của {playlist?.creator}</p>
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <div onClick={(e) => e.stopPropagation()}>
                 <PlayButtonPlaylist playlist={playlist} />
               </div>
             </div>

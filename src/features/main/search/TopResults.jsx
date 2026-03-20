@@ -1,21 +1,24 @@
-import { useSearchStore } from "@/store/useSearchStore";
 import { formatTime } from "@/features/player/PlaybackControls";
 import SectionGrid from "../home/SectionGrid";
 import PlayButtonArtist from "../playController/PlayBtnArtists";
 import PlayButtonPlaylist from "../playController/PlayButtonPlaylist";
 import PlayButtonSong from "../playController/PlayBtnSong";
 import { useNavigate } from "react-router-dom";
-const TopResults = () => {
-  const {
-    topResults = [],
-    songs = [],
-    error,
-    artists = [],
-    playlists = [],
-  } = useSearchStore();
+import {
+  useTopResults,
+  useSearchSongs,
+  useSearchArtists,
+  useSearchPlaylists,
+} from "@/hooks/useSearchQuery";
+
+const TopResults = ({ query }) => {
+  const { data: topResults = [] } = useTopResults(query);
+  const { data: songs = [] } = useSearchSongs(query);
+  const { data: artists = [] } = useSearchArtists(query);
+  const { data: playlists = [] } = useSearchPlaylists(query);
   const navigate = useNavigate();
+
   const renderPlayButton = (type, data) => {
-    // console.log(type, data);
     switch (type) {
       case "Artist":
         return <PlayButtonArtist artist={data} />;
@@ -27,9 +30,9 @@ const TopResults = () => {
         return null;
     }
   };
+
   return (
     <>
-      {/* Kết quả hàng đầu */}
       <div className="flex flex-row gap-[18%]">
         <h2 className="text-xl sm:text-2xl font-bold mb-2">Kết quả hàng đầu</h2>
         <h2 className="text-xl sm:text-2xl font-bold mb-2">Bài hát</h2>
@@ -45,7 +48,6 @@ const TopResults = () => {
               alt={topResults?.[0]?.response?.name}
               className="w-24 h-24 rounded-full aspect-square object-cover"
             />
-
             <div>
               <h3 className="font-bold text-4xl">
                 {topResults?.[0]?.response?.name ||
@@ -70,7 +72,6 @@ const TopResults = () => {
               alt=""
               className="w-24 h-24 rounded-full aspect-square object-cover"
             />
-
             <div>
               <h3 className="font-bold text-4xl">Không có tìm kiếm phù hợp</h3>
               <p className="text-gray-400 text-lg"> Không có kết quả phù hợp</p>
@@ -78,7 +79,6 @@ const TopResults = () => {
           </div>
         )}
 
-        {/* Danh sách bài hát */}
         {songs.length > 0 ? (
           <div className="ml-3 w-[70%]">
             <ul>
@@ -115,12 +115,11 @@ const TopResults = () => {
           <p className="ml-14">Không có bài hát trùng khớp</p>
         )}
       </div>
+
       {playlists.length > 0 ? (
-        <>
-          <div className="mt-8">
-            <SectionGrid playlists={playlists} title={"Playlists"} />
-          </div>
-        </>
+        <div className="mt-8">
+          <SectionGrid playlists={playlists} title={"Playlists"} />
+        </div>
       ) : (
         <div className="mt-4 h-[200px]">
           <SectionGrid title={"Không tìm thấy Danh Sách Phát trùng khớp"} />
@@ -128,11 +127,9 @@ const TopResults = () => {
       )}
 
       {artists.length > 0 ? (
-        <>
-          <div className="mt-8">
-            <SectionGrid artists={artists} title={"Nghệ Sĩ"} />
-          </div>
-        </>
+        <div className="mt-8">
+          <SectionGrid artists={artists} title={"Nghệ Sĩ"} />
+        </div>
       ) : (
         <div className="mt-4 h-[200px]">
           <SectionGrid title={"Không tìm thấy Nghệ Sĩ trùng khớp"} />

@@ -3,34 +3,18 @@ import AdminHeader from "@/features/admin/AdminHeader";
 import AlbumsTabContent from "@/features/admin/Albums/AlbumsTabContent";
 import SongsTabContent from "@/features/admin/Songs/SongsTabContent";
 import UsersTabContent from "@/features/admin/Users/UsersTabContent";
-import { useArtistsStore } from "@/store/useArtistsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useMusicStore } from "@/store/useMusicStore";
-import { useUploadStore } from "@/store/useUploadStore";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Album, ListMusic, Music, SquareUserRound } from "lucide-react";
-import { useEffect } from "react";
 import DashboardStats from "@/features/admin/Stats/DashboardStats";
 import ArtistsTabContent from "@/features/admin/Artists/ArtitsTabContent";
 import PlaylistsTabContent from "@/features/admin/Playlists/PlaylistsTabContent";
 
 function Admin() {
-  const { isAdmin, isLoading } = useAuthStore();
-  const { fetchArtists } = useArtistsStore();
-  const { fetchAllFiles } = useUploadStore();
-  const { fetchSongs, fetchStats } = useMusicStore();
-  useEffect(() => {
-    //FetchAlbums()
-    //FetchSongs()
-    fetchSongs(1, 10);
-    fetchArtists(1, 10, "name", "asc");
-    fetchAllFiles();
+  const { isAdmin } = useAuthStore();
 
-    //FetchPlaylists()
-    fetchStats();
-  }, [fetchSongs, fetchStats, fetchArtists, fetchAllFiles]);
+  if (!isAdmin) return <div>Unauthorized</div>;
 
-  if (!isAdmin && !isLoading) return <div>Unauthoriezd</div>;
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-black text-zinc-00 p-8 text-white">
       <AdminHeader />
@@ -63,7 +47,7 @@ function Admin() {
             className="data-[state=active]:bg-zinc-700"
           >
             <SquareUserRound className="mr-2 size-4" /> Users
-          </TabsTrigger>{" "}
+          </TabsTrigger>
           <TabsTrigger
             value="playlists"
             className="data-[state=active]:bg-zinc-700"
@@ -82,7 +66,7 @@ function Admin() {
         </TabsContent>
         <TabsContent value="users">
           <UsersTabContent />
-        </TabsContent>{" "}
+        </TabsContent>
         <TabsContent value="playlists">
           <PlaylistsTabContent />
         </TabsContent>

@@ -8,18 +8,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import UploadSong from "../file-upload/UploadSong";
 import UploadImage from "../file-upload/UploadImage";
 import ArtistSelection from "../Artists/ArtistSelection";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useUpdateSong } from "@/hooks/useSongsQuery";
+import { useAllFiles } from "@/hooks/useUploadMutation";
 
 const UpdateSong = ({ song }) => {
-  const { updateSong, isUploading } = useMusicStore();
-  const { setIsImageUploaded, setIsUploaded, files } = useUploadStore();
+  const updateSongMutation = useUpdateSong();
+  const { data: files } = useAllFiles();
+  const isUploading = updateSongMutation.isPending;
 
   const [audio, setAudio] = useState(null);
   const [image, setImage] = useState(null);
@@ -55,8 +56,6 @@ const UpdateSong = ({ song }) => {
     });
     setAudio(null);
     setImage(null);
-    setIsImageUploaded(false);
-    setIsUploaded(false);
   };
 
   const handleSubmit = async () => {
@@ -69,9 +68,7 @@ const UpdateSong = ({ song }) => {
     if (audio) {
       updatedSong.fileSongURL = audio.fileSongURL;
     }
-    console.log(updatedSong);
-    console.log(song.id);
-    updateSong(song.id, updatedSong);
+    updateSongMutation.mutate({ id: song.id, songData: updatedSong });
     clearData();
     setSongDialogOpen(false);
   };

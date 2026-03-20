@@ -10,18 +10,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-import { useMusicStore } from "@/store/useMusicStore";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import UploadSong from "../file-upload/UploadSong";
 import UploadImage from "../file-upload/UploadImage";
 import ArtistSelection from "../Artists/ArtistSelection";
-import { useUploadStore } from "@/store/useUploadStore";
+import { useAddSong } from "@/hooks/useSongsQuery";
 
 const AddSongDialog = () => {
-  const { addSong, isLoading } = useMusicStore();
-  const { setIsImageUploaded, setIsUploaded, isUploading } = useUploadStore();
+  const addSongMutation = useAddSong();
+  const isLoading = addSongMutation.isPending;
+  const isUploading = false;
   const [audio, setAudio] = useState(null);
   const [image, setImage] = useState(null);
   const [songDialogOpen, setSongDialogOpen] = useState(false);
@@ -47,8 +47,6 @@ const AddSongDialog = () => {
 
     setAudio(null);
     setImage(null);
-    setIsImageUploaded(false);
-    setIsUploaded(false);
   };
 
   const handleSubmit = async () => {
@@ -58,7 +56,7 @@ const AddSongDialog = () => {
     newSong.imageURL = image.url;
     newSong.duration = Math.floor(audio.duration);
     newSong.fileSongURL = audio.url;
-    addSong(newSong);
+    addSongMutation.mutate(newSong);
     clearData();
     setSongDialogOpen(false);
   };

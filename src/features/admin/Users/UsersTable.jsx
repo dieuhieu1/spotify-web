@@ -7,29 +7,17 @@ import {
   TableHead,
   TableHeader,
 } from "@/components/ui/table";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Calendar, Trash2 } from "lucide-react";
 import TableSkel from "../../../loadingSkeleton/TableSkel";
-import { useEffect } from "react";
-import useUserStore from "@/store/useUserStore";
+import { useUsers, useDeleteUser } from "@/hooks/useUsersQuery";
 
 const UsersTable = () => {
-  const { users = [], isLoading, deleteUser, fetchUsers } = useUserStore();
-  useEffect(() => {
-    fetchUsers(1, 10);
-  }, [fetchUsers]);
+  const { data: users = [], isLoading } = useUsers(1, 10);
+  const deleteUserMutation = useDeleteUser();
+
   if (isLoading) {
     return <TableSkel />;
   }
-  console.log(users);
-  // Uncomment and add error handling if needed
-  // if (error) {
-  //   return (
-  //     <div className="flex items-center justify-center py-8">
-  //       <div className="text-red-400">{error}</div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <Table>
@@ -44,11 +32,12 @@ const UsersTable = () => {
       </TableHeader>
       <TableBody>
         {users?.map((user) => {
-          const userName = user?.name || "Unknown User"; // Default to "Unknown Title"
-          const userEmail = user?.email || "Unknown Email"; // Default to "Unknown Artist"
-          const dob = user?.dob || "Unknown Date Of Birth"; // Default to "Unknown Date"
+          const userName = user?.name || "Unknown User";
+          const userEmail = user?.email || "Unknown Email";
+          const dob = user?.dob || "Unknown Date Of Birth";
           const createdPlaylists = user?.createdPlaylists || [];
           const roles = user?.roles || [];
+
           return (
             <TableRow key={user.id} className="hover:bg-zinc-800/50">
               <TableCell className="font-medium">
@@ -57,14 +46,12 @@ const UsersTable = () => {
                   <p>{userEmail}</p>
                 </div>
               </TableCell>
-
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Calendar className="h-4 w-4" />
                   {dob}
                 </span>
               </TableCell>
-
               <TableCell className="font-medium">
                 {createdPlaylists.length > 0 ? (
                   <div>
@@ -81,7 +68,6 @@ const UsersTable = () => {
                   <span className="text-gray-400">No Created Playlists</span>
                 )}
               </TableCell>
-
               <TableCell className="font-medium">
                 {roles.length > 0 ? (
                   <div>
@@ -101,14 +87,14 @@ const UsersTable = () => {
                   <span className="text-gray-400">No Role</span>
                 )}
               </TableCell>
-
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
                   <Button
                     variant={"ghost"}
                     size={"sm"}
                     className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                    onClick={() => deleteUser(user.id)}
+                    onClick={() => deleteUserMutation.mutate(user.id)}
+                    disabled={deleteUserMutation.isPending}
                   >
                     <Trash2 className="size-4" />
                   </Button>

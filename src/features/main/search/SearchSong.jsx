@@ -1,9 +1,10 @@
-import { useSearchStore } from "@/store/useSearchStore";
-import { formatTime } from "@/features/player/PlaybackControls"; // Nếu cần hiển thị thời gian
+import { useSearchSongs } from "@/hooks/useSearchQuery";
+import { formatTime } from "@/features/player/PlaybackControls";
 import PlayButtonSong from "../playController/PlayBtnSong";
 
-const SearchSong = () => {
-  const { songs = [] } = useSearchStore();
+const SearchSong = ({ query }) => {
+  const { data: songs = [] } = useSearchSongs(query);
+
   return (
     <div className="p-6 bg-primary text-white font-sans">
       <div className="space-y-4">
@@ -30,11 +31,7 @@ const SearchSong = () => {
               <div className="text-gray-400 flex-1">
                 {formatTime(song?.duration)}
               </div>
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <div onClick={(e) => e.stopPropagation()}>
                 <PlayButtonSong song={song} />
               </div>
             </div>

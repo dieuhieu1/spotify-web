@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { MoveLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useForgotPassword } from "@/hooks/useAuthMutations";
 import { validateEmail } from "@/utils/validateEmail";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const { forgotPassword } = useAuthStore();
+  const forgotPasswordMutation = useForgotPassword();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -21,8 +21,7 @@ const ForgotPassword = () => {
       return;
     }
     setErrorMessage("");
-    console.log(email);
-    forgotPassword({ email });
+    forgotPasswordMutation.mutate({ email });
     navigate("/verify");
   };
 

@@ -7,16 +7,13 @@ import {
   TableHead,
   TableHeader,
 } from "@/components/ui/table";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Calendar, Trash2 } from "lucide-react";
 import TableSkel from "../../../loadingSkeleton/TableSkel";
-import { useEffect } from "react";
+import { useAlbums, useDeleteAlbum } from "@/hooks/useAlbumsQuery";
 
 const AlbumsTable = () => {
-  const { albums = [], deleteAlbum, fetchAlbums, isLoading } = useMusicStore();
-  useEffect(() => {
-    fetchAlbums(1, 10);
-  }, [fetchAlbums]);
+  const { data: albums = [], isLoading } = useAlbums(1, 10);
+  const deleteAlbumMutation = useDeleteAlbum();
 
   if (isLoading) {
     return <TableSkel />;
@@ -37,12 +34,13 @@ const AlbumsTable = () => {
       </TableHeader>
       <TableBody>
         {albums?.map((album) => {
-          const albumName = album?.name || "Unknown Title"; // Default to "Unknown Title"
-          const artistName = album?.artists?.[0]?.name || "Unknown Artist"; // Default to "Unknown Artist"
-          const releaseDate = album?.createdAt || "Unknown Date"; // Default to "Unknown Date"
-          const imageURL = album?.imageURL || ""; // Fallback to an empty string if imageURL is not provided
+          const albumName = album?.name || "Unknown Title";
+          const artistName = album?.artists?.[0]?.name || "Unknown Artist";
+          const releaseDate = album?.createdAt || "Unknown Date";
+          const imageURL = album?.imageURL || "";
           const totalSongs = album?.totalTracks || 0;
           const followers = album?.follower || 0;
+
           return (
             <TableRow key={album.id} className="hover:bg-zinc-800/50">
               <TableCell>
@@ -53,7 +51,7 @@ const AlbumsTable = () => {
                     className="size-10 rounded object-cover"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-zinc-800 rounded" /> // Placeholder if no image
+                  <div className="w-10 h-10 bg-zinc-800 rounded" />
                 )}
               </TableCell>
               <TableCell className="font-medium">{albumName}</TableCell>
@@ -66,14 +64,14 @@ const AlbumsTable = () => {
               </TableCell>
               <TableCell className="font-medium">{totalSongs}</TableCell>
               <TableCell className="font-medium">{followers}</TableCell>
-
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
                   <Button
                     variant={"ghost"}
                     size={"sm"}
                     className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                    onClick={() => deleteAlbum(album.id)}
+                    onClick={() => deleteAlbumMutation.mutate(album.id)}
+                    disabled={deleteAlbumMutation.isPending}
                   >
                     <Trash2 className="size-4" />
                   </Button>

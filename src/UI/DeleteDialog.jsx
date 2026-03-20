@@ -11,13 +11,26 @@ import {
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const DeleteDialog = ({ id, deleteAPI, title, type, isLoading }) => {
+const DeleteDialog = ({
+  id,
+  deleteAPI,
+  title,
+  type,
+  isLoading,
+  iconColor,
+  colorHover,
+  url,
+}) => {
   const [songDialogOpen, setSongDialogOpen] = useState(false);
-
+  const navigate = useNavigate();
   const handleDelete = async () => {
     deleteAPI(id);
     setSongDialogOpen(false);
+    if (url) {
+      navigate(url);
+    }
   };
 
   return (
@@ -26,10 +39,12 @@ const DeleteDialog = ({ id, deleteAPI, title, type, isLoading }) => {
         <Button
           variant={"ghost"}
           size={"sm"}
-          className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+          className={`${iconColor || "text-red-400"} hover:${
+            colorHover || "text-red-300"
+          } hover:bg-red-400/10`}
           onClick={() => setSongDialogOpen(true)}
         >
-          <Trash2 className="size-4" />
+          <Trash2 className="w-4 h-4" />
         </Button>
       </DialogTrigger>
 

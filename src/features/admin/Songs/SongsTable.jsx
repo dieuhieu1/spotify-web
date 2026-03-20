@@ -6,18 +6,20 @@ import {
   TableHead,
   TableHeader,
 } from "@/components/ui/table";
-import { useMusicStore } from "@/store/useMusicStore";
 import { Calendar } from "lucide-react";
 import TableSkel from "../../../loadingSkeleton/TableSkel";
 import UpdateSong from "../Songs/UpdateSong";
 import DeleteDialog from "../../../UI/DeleteDialog";
+import { useSongs, useDeleteSong } from "@/hooks/useSongsQuery";
 
 const SongsTable = () => {
-  const { songs = [], isLoading, deleteSong } = useMusicStore();
+  const { data: songs = [], isLoading } = useSongs(1, 100);
+  const deleteSongMutation = useDeleteSong();
 
   if (isLoading) {
     return <TableSkel />;
   }
+
   return (
     <Table>
       <TableHeader>
@@ -31,10 +33,10 @@ const SongsTable = () => {
       </TableHeader>
       <TableBody>
         {songs?.map((song) => {
-          const songName = song?.name || "Unknown Title"; // Default to "Unknown Title"
-          const artistName = song?.artists?.[0]?.name || "Unknown Artist"; // Default to "Unknown Artist"
-          const releaseDate = song?.createdAt || "Unknown Date"; // Default to "Unknown Date"
-          const imageURL = song?.imageURL || ""; // Fallback to an empty string if imageURL is not provided
+          const songName = song?.name || "Unknown Title";
+          const artistName = song?.artists?.[0]?.name || "Unknown Artist";
+          const releaseDate = song?.createdAt || "Unknown Date";
+          const imageURL = song?.imageURL || "";
 
           return (
             <TableRow key={song.id} className="hover:bg-zinc-800/50">
@@ -46,7 +48,7 @@ const SongsTable = () => {
                     className="size-10 rounded object-cover"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-zinc-800 rounded" /> // Placeholder if no image
+                  <div className="w-10 h-10 bg-zinc-800 rounded" />
                 )}
               </TableCell>
               <TableCell className="font-medium">{songName}</TableCell>
@@ -62,9 +64,9 @@ const SongsTable = () => {
                   <DeleteDialog
                     id={song.id}
                     title={"Delete Song"}
-                    deleteAPI={deleteSong}
+                    deleteAPI={(id) => deleteSongMutation.mutate(id)}
                     type={song.name}
-                    isLoading={isLoading}
+                    isLoading={deleteSongMutation.isPending}
                   />
                   <UpdateSong song={song} />
                 </div>

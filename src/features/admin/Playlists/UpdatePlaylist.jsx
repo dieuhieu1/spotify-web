@@ -11,17 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import UploadImage from "../file-upload/UploadImage";
-import { useUploadStore } from "@/store/useUploadStore";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useUpdatePlaylist } from "@/hooks/usePlaylistsQuery";
+import { useSongs } from "@/hooks/useSongsQuery";
+import { useAllFiles } from "@/hooks/useUploadMutation";
 import SongSelection from "./SongSelection";
 
 const UpdatePlaylist = ({ playlist }) => {
-  const { songs } = useMusicStore();
-
-  const { updatePlaylist, isLoading } = usePlaylistStore();
-  const { setIsImageUploaded, setIsUploaded, files } = useUploadStore();
-  console.log(playlist);
+  const { data: songs = [] } = useSongs(1, 100);
+  const updatePlaylistMutation = useUpdatePlaylist();
+  const { data: files } = useAllFiles();
+  const isLoading = updatePlaylistMutation.isPending;
   const [image, setImage] = useState(null);
   const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
 
@@ -45,8 +44,6 @@ const UpdatePlaylist = ({ playlist }) => {
       songIds: [],
     });
     setImage(null);
-    setIsImageUploaded(false);
-    setIsUploaded(false);
   };
 
   const handleSubmit = async () => {
@@ -54,8 +51,7 @@ const UpdatePlaylist = ({ playlist }) => {
       updatedPlaylist.imageURL = image.imageURL;
     }
 
-    console.log(updatedPlaylist);
-    updatePlaylist(playlist.id, updatedPlaylist);
+    updatePlaylistMutation.mutate({ playlistId: playlist.id, updatedData: updatedPlaylist });
     clearData();
     setPlaylistDialogOpen(false);
   };

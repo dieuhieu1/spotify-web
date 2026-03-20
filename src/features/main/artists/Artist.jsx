@@ -1,46 +1,38 @@
-import React, { useEffect } from "react";
-import { Play, Pause, Check, PlusCircleIcon } from "lucide-react"; // icon play/pause
-import { formatDuration } from "@/utils/formatDuration"; // hàm format duration
+import { Play, Pause } from "lucide-react";
+import { formatDuration } from "@/utils/formatDuration";
 import { usePlayerStore } from "@/store/usePlayerStore";
-import { useArtistsStore } from "@/store/useArtistsStore";
+import { useArtistById } from "@/hooks/useArtistsQuery";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Artist = () => {
-  const { fetchArtistById, currentArtist } = useArtistsStore();
   const { artistId } = useParams();
-
+  const { data: currentArtist } = useArtistById(artistId);
   const { currentSong, isPlaying, playArtist, togglePlay } = usePlayerStore();
-  useEffect(() => {
-    if (artistId) {
-      fetchArtistById(artistId);
-    }
-  }, [fetchArtistById, artistId]);
+
   const handlePlayArtist = () => {
     if (!currentArtist) return;
     const isCurrentArtistPlaying = currentArtist?.songs.some(
       (song) => song?.id === currentSong?.id
     );
-
     if (isCurrentArtistPlaying) {
       togglePlay();
     } else {
       playArtist(currentArtist?.songs, 0);
     }
   };
+
   const handlePlaySong = (index) => {
     if (!currentArtist) return;
     playArtist(currentArtist?.songs, index);
   };
+
   return (
     <div className="text-white overflow-auto h-full  bg-gradient-to-b from-stone-600 to-primary">
-      {/* Header artist */}
       <div
         className="relative h-[300px] w-full bg-center bg-cover rounded-md overflow-hidden"
-        style={{
-          backgroundImage: `url(${currentArtist?.imageURL})`,
-        }}
+        style={{ backgroundImage: `url(${currentArtist?.imageURL})` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-70"></div>
         <div className="relative flex items-center p-8 gap-6">
@@ -76,7 +68,7 @@ const Artist = () => {
           </div>
         </div>
       </div>
-      {/* Play Button */}
+
       <div className="p-6 flex items-center gap-6">
         <Button
           onClick={handlePlayArtist}
@@ -91,18 +83,17 @@ const Artist = () => {
           )}
         </Button>
       </div>
-      {/* Popular Songs List */}
+
       <div className="px-8">
         <h2 className="text-2xl font-bold mb-4">Phổ biến</h2>
         <div className="text-gray-400">
           <div className="space-y-2 py-4">
             {currentArtist?.songs?.map((song, index) => {
               const isCurrentSong = currentSong?.id === song.id;
-
               return (
                 <div
                   key={song.id}
-                  className={`grid grid-cols-[16px_4fr_2fr_1fr_0.25fr] gap-4  py-2 px-2 text-sm text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer`}
+                  className="grid grid-cols-[16px_4fr_2fr_1fr_0.25fr] gap-4 py-2 px-2 text-sm text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer"
                 >
                   <div
                     className="flex items-center justify-center group"
@@ -118,7 +109,6 @@ const Artist = () => {
                         </span>
                       </>
                     )}
-
                     {isCurrentSong && !isPlaying && (
                       <>
                         <span className="size-4 text-green-500 group-hover:hidden">
@@ -127,7 +117,6 @@ const Artist = () => {
                         <Play className="h-4 w-4 hidden group-hover:block text-green-500" />
                       </>
                     )}
-
                     {!isCurrentSong && <span>{index + 1}</span>}
                   </div>
 
@@ -141,9 +130,7 @@ const Artist = () => {
                       className="w-[40px] h-[40px]"
                     />
                     <div>
-                      <div
-                        className={`font-medium text-white truncate hover:underline cursor-pointer`}
-                      >
+                      <div className="font-medium text-white truncate hover:underline cursor-pointer">
                         {song.name}
                       </div>
                       <div className="text-sm text-zinc-400 truncate hover:underline cursor-pointer">

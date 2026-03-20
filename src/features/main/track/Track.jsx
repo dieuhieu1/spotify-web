@@ -1,67 +1,39 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMusicStore } from "@/store/useMusicStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { useSongById } from "@/hooks/useSongsQuery";
 import { formatDuration } from "@/utils/formatDuration";
-import {
-  Check,
-  Ellipsis,
-  Pause,
-  Play,
-  PlusCircleIcon,
-  TicketCheck,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Ellipsis, Pause, Play } from "lucide-react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import PlaylistMenu from "./AddDetail";
 import SongList from "./SongList";
 
 const Track = () => {
   const { trackId } = useParams();
-  const {
-    fetchSongById,
-    isMainLoading,
-    current,
-    fetchArtistById,
-    trendingSongs,
-  } = useMusicStore();
+  const { data: current, isLoading } = useSongById(trackId);
   const { currentSong, isPlaying, togglePlay, playSong } = usePlayerStore();
-
   const [showDetail, setShowDetail] = useState(false);
 
   const handleShow = () => {
-    setShowDetail((showDetail) => !showDetail);
+    setShowDetail((prev) => !prev);
   };
-
-  useEffect(() => {
-    if (trackId) {
-      fetchSongById(trackId);
-    }
-  }, [fetchSongById, trackId]);
 
   const handlePlaySong = () => {
     if (!current) return;
-    const iscurrentSong = currentSong?.id === current?.id;
-    if (iscurrentSong) {
+    const isCurrentSong = currentSong?.id === current?.id;
+    if (isCurrentSong) {
       togglePlay();
     } else {
       playSong(current, 0);
     }
   };
-  console.log(current);
-  // if (isMainLoading) {
-  //   return <MainPlaylistSkeleton />;
-  // }
+
   return (
     <div className="h-full">
       <ScrollArea className="h-full bg-gradient-to-b from-[red] via-zinc-900/80 to-zinc-900 ">
-        {/* Main Content */}
-
         <div className="relative min-h-full ">
-          {/* BG Gradient */}
-          {/* bg-gradient-to-b from-[red] via-zinc-900/80 to-zinc-900  */}
           <div className="absolute inset-0  z-0 h-full" aria-hidden="true">
-            {/* Content */}
             <div className="relative z-10">
               <div className="flex p-6 gap-6 pb-8">
                 <img
@@ -84,7 +56,6 @@ const Track = () => {
                 </div>
               </div>
             </div>
-            {/* Play Button */}
             <div className="px-6 pb-4 flex items-center gap-6">
               <Button
                 onClick={handlePlaySong}
@@ -106,7 +77,7 @@ const Track = () => {
               <PlaylistMenu showDetail={showDetail} />
             </div>
 
-            <SongList />
+            <SongList song={current} />
           </div>
         </div>
       </ScrollArea>

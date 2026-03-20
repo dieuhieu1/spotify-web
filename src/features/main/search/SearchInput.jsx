@@ -1,35 +1,14 @@
 import { useAuth } from "@/providers/AuthProvider";
-import { useSearchStore } from "@/store/useSearchStore";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SearchInput = () => {
-  const { fetchTopResults, findSongs, findPlaylists, findArtists } =
-    useSearchStore();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
-  const { isLogin } = useAuth();
-  const { isDialogOpen, setIsDialogOpen } = useAuth();
-
-  useEffect(() => {
-    if (query.trim()) {
-      const timer = setTimeout(() => {
-        fetchTopResults(query);
-        findSongs(query);
-        findPlaylists(query);
-        findArtists(query);
-      }, 500); // Debounce 500ms
-      return () => clearTimeout(timer);
-    } else {
-      fetchTopResults("");
-      findSongs("");
-      findPlaylists("");
-      findArtists("");
-    }
-  }, [fetchTopResults, findArtists, findPlaylists, findSongs, query]);
+  const { isLogin, isDialogOpen, setIsDialogOpen } = useAuth();
 
   return (
     <div>
